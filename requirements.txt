@@ -1,0 +1,13 @@
+pydantic~=2.2.1
+pydantic-settings~=2.2.1
+fastapi~=0.101.1
+uvicorn~=0.23.2
+
+asyncpg~=0.28.0
+databases~=0.7.0
+alembic~=1.12.0
+psycopg~=3.1.10
+psycopg-binary~=3.1.10
+sqlalchemy~=2.0.20
+
+PyJWT~=2.8.0
