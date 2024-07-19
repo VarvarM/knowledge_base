@@ -26,7 +26,7 @@ def create_accesses(user_id, kb_id, access_level):
 
 def read_user_kb_accesses():
     with engine.connect() as conn:
-        query = select(UserKBAccess).order_by(UserKBAccess.user_id and UserKBAccess.kb_id)
+        query = select(UserKBAccess).order_by(UserKBAccess.user_id)
         bases = [dict(row) for row in conn.execute(query).mappings()]
         return bases
 

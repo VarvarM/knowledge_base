@@ -11,10 +11,10 @@ class AccessLevelEnum(enum.Enum):
 
 
 class NodeTypeEnum(enum.Enum):
-    feature = "feature"
-    hypothesis = "hypothesis"
-    and_node = "and"
-    or_node = "or"
+    FEATURE = "FEATURE"
+    HYPOTHESIS = "HYPOTHESIS"
+    AND = "AND"
+    OR = "OR"
 
 
 class AttributeTypeEnum(enum.Enum):
