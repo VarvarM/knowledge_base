@@ -1,29 +1,21 @@
-from typing import Optional
-
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from base.models import AccessLevelEnum, NodeTypeEnum, ConnectionTypeEnum
+from base.models import AccessLevelEnum, NodeTypeEnum, ConnectionTypeEnum, AttributeTypeEnum
 from base.database import SessionLocal
-from base.queries.user_queries import read_users, update_users, delete_users, create_users
-from base.queries.base_queries import create_knowledge_bases, update_bases, delete_bases, read_knowledge_bases
+from base.queries.users import read_users, update_users, delete_users, create_users
+from base.queries.knowledge_bases import create_knowledge_bases, update_bases, delete_bases, read_knowledge_bases
 from base.queries.user_kb_access import create_accesses, read_user_kb_accesses, update_accesses, delete_accesses
-from base.queries.sections_queries import create_sections, read_sections, update_sections, delete_sections
-from base.queries.nodes_queries import create_nodes, read_nodes, update_nodes, delete_nodes
-from base.queries.node_connections_queries import create_node_connections, read_node_connections, \
+from base.queries.sections import create_sections, read_sections, update_sections, delete_sections
+from base.queries.nodes import create_nodes, read_nodes, update_nodes, delete_nodes
+from base.queries.node_connections import create_node_connections, read_node_connections, \
     update_node_connections, delete_node_connections
+from base.queries.attributes import create_attributes, read_attributes, update_attributes, delete_attributes
+from base.queries.node_attributes import create_node_attributes, read_node_attributes, update_node_attributes, \
+    delete_node_attributes
 
 load_dotenv()
 app = FastAPI()
-
-
-# Зависимость для получения сессии базы данных
-# def get_db():
-#     db = SessionLocal()
-#     try:
-#         yield db
-#     finally:
-#         db.close()
 
 
 @app.get('/users')
@@ -181,8 +173,60 @@ def update_node_connection(source_id: int, target_id: int, conn_type: Connection
 
 
 @app.delete('/node_connections/{source_id}')
-def delete_node(source_id: int, target_id: int):
+def delete_node_connection(source_id: int, target_id: int):
     res = delete_node_connections(source_id, target_id)
     if res == 0:
         raise HTTPException(status_code=404, detail="Connection not found")
+    return {'ok': 'True'}
+
+
+@app.get('/attributes')
+def read_all_attributes():
+    attributes = read_attributes()
+    return {'attributes': attributes}
+
+
+@app.post('/new_attribute')
+def create_new_attribute(name: str, type: AttributeTypeEnum, value_area: str):
+    message, status_code = create_attributes(name, type, value_area)
+    raise HTTPException(status_code=status_code, detail=message)
+
+
+@app.put('/attributes/{attr_id}')
+def update_attribute(attr_id: int, name: str, type: AttributeTypeEnum, value_area: str):
+    message, status_code = update_attributes(attr_id, name, type, value_area)
+    raise HTTPException(status_code=status_code, detail=message)
+
+
+@app.delete('/attributes/{attr_id}')
+def delete_attribute(attr_id: int):
+    res = delete_attributes(attr_id)
+    if res == 0:
+        raise HTTPException(status_code=404, detail="Attribute not found")
+    return {'ok': 'True'}
+
+
+@app.get('/node_attributes')
+def read_all_node_attributes():
+    noed_attributes = read_node_attributes()
+    return {'noed_attributes': noed_attributes}
+
+
+@app.post('/new_node_attribute')
+def create_new_node_attribute(node_id: int, attr_id: int, condition: str = None):
+    message, status_code = create_node_attributes(node_id, attr_id, condition)
+    raise HTTPException(status_code=status_code, detail=message)
+
+
+@app.put('/node_attributes/{node_id}')
+def update_node_attribute(node_id: int, attr_id: int, condition: str = None):
+    message, status_code = update_node_attributes(node_id, attr_id, condition)
+    raise HTTPException(status_code=status_code, detail=message)
+
+
+@app.delete('/node_attributes/{node_id}')
+def delete_node_attribute(node_id: int, attr_id: int):
+    res = delete_node_attributes(node_id, attr_id)
+    if res == 0:
+        raise HTTPException(status_code=404, detail="Node attribute not found")
     return {'ok': 'True'}

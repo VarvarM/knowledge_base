@@ -1,13 +1,13 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Enum, UniqueConstraint
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.orm import declarative_base
 import enum
 
 Base = declarative_base()
 
 
 class AccessLevelEnum(enum.Enum):
-    read = "read"
-    write = "write"
+    READ = "READ"
+    WRITE = "WRITE"
 
 
 class NodeTypeEnum(enum.Enum):
@@ -18,9 +18,9 @@ class NodeTypeEnum(enum.Enum):
 
 
 class AttributeTypeEnum(enum.Enum):
-    range = "range"
-    discrete = "discrete"
-    string = "string"
+    RANGE = "RANGE"
+    DISCRETE = "DISCRETE"
+    STRING = "STRING"
 
 
 class ConnectionTypeEnum(enum.Enum):

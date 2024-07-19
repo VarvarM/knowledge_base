@@ -46,9 +46,7 @@ def update_node_connections(source_id, target_id, conn_type):
             return "Connection not found", 404
         stmt = update(NodeConnection).where(
             (NodeConnection.source_node_id == source_id) & (NodeConnection.target_node_id == target_id)).values(
-            source_node_id=source_id,
-            target_node_id=target_id,
-            connection_type=conn_type)
+            source_node_id=source_id, target_node_id=target_id, connection_type=conn_type)
         conn.execute(stmt)
         conn.commit()
         return 'Connection updated', 200
@@ -56,7 +54,8 @@ def update_node_connections(source_id, target_id, conn_type):
 
 def delete_node_connections(source_id, target_id):
     with engine.connect() as conn:
-        stmt = delete(NodeConnection).where((NodeConnection.source_node_id == source_id) & (NodeConnection.target_node_id == target_id))
+        stmt = delete(NodeConnection).where(
+            (NodeConnection.source_node_id == source_id) & (NodeConnection.target_node_id == target_id))
         res = conn.execute(stmt)
         conn.commit()
         return res.rowcount
