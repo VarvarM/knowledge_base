@@ -1,6 +1,6 @@
 from base.database import engine
 from sqlalchemy import insert, select, update, delete
-from base.models import Node, Section
+from base.models import Node, Section, NodeAttribute, NodeConnection
 
 
 def create_nodes(sec_id, name, node_type):
@@ -41,7 +41,13 @@ def update_nodes(node_id, sec_id, name, node_type):
 
 def delete_nodes(node_id):
     with engine.connect() as conn:
+        node_check = conn.execute(select(Node).where(Node.id == node_id)).first()
+        if not node_check:
+            return "Node not found", 404
+        conn.execute(delete(NodeConnection).where(NodeConnection.source_node_id == node_id))
+        conn.execute(delete(NodeConnection).where(NodeConnection.target_node_id == node_id))
+        conn.execute(delete(NodeAttribute).where(NodeAttribute.node_id == node_id))
         stmt = delete(Node).where(Node.id == node_id)
-        res = conn.execute(stmt)
+        conn.execute(stmt)
         conn.commit()
-        return res.rowcount
+        return "Node deleted", 200

@@ -1,6 +1,6 @@
 from base.database import engine
 from sqlalchemy import insert, select, update, delete
-from base.models import Attribute
+from base.models import Attribute, NodeAttribute
 
 
 def create_attributes(name, type, value_area):
@@ -35,7 +35,11 @@ def update_attributes(attr_id, name, type, value_area):
 
 def delete_attributes(attr_id):
     with engine.connect() as conn:
+        attr_check = conn.execute(select(Attribute).where(Attribute.id == attr_id)).first()
+        if not attr_check:
+            return "Attribute not found", 404
+        conn.execute(delete(NodeAttribute).where(NodeAttribute.attribute_id == attr_id))
         stmt = delete(Attribute).where(Attribute.id == attr_id)
-        res = conn.execute(stmt)
+        conn.execute(stmt)
         conn.commit()
-        return res.rowcount
+        return 'Attribute deleted', 200

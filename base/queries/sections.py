@@ -1,6 +1,6 @@
 from base.database import engine
 from sqlalchemy import insert, select, update, delete
-from base.models import Section, KnowledgeBase
+from base.models import Section, KnowledgeBase, Node
 
 
 def create_sections(kb_id, name):
@@ -36,6 +36,7 @@ def update_sections(sec_id, kb_id, name):
         section_check = conn.execute(select(Section).where(Section.id == sec_id)).first()
         if not section_check:
             return "Section not found", 404
+        # TODO сделать нейм + base_id чек
         stmt = update(Section).where(Section.id == sec_id).values(kb_id=kb_id, name=name)
         conn.execute(stmt)
         conn.commit()
@@ -44,7 +45,11 @@ def update_sections(sec_id, kb_id, name):
 
 def delete_sections(sec_id):
     with engine.connect() as conn:
+        section_check = conn.execute(select(Section).where(Section.id == sec_id)).first()
+        if not section_check:
+            return "Section not found", 404
+        conn.execute(delete(Node).where(Node.section_id == sec_id))
         stmt = delete(Section).where(Section.id == sec_id)
-        res = conn.execute(stmt)
+        conn.execute(stmt)
         conn.commit()
-        return res.rowcount
+        return "Section deleted", 200

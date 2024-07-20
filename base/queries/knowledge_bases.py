@@ -1,10 +1,13 @@
 from base.database import engine
 from sqlalchemy import insert, select, update, delete
-from base.models import KnowledgeBase
+from base.models import KnowledgeBase, Section, UserKBAccess
 
 
 def create_knowledge_bases(base, description):
     with engine.connect() as conn:
+        name_check = conn.execute(select(KnowledgeBase).where(KnowledgeBase.name == base)).first()
+        if name_check:
+            return "Knowledge base already exists", 409
         stmt = insert(KnowledgeBase).values(
             [
                 {'name': base, 'description': description}
@@ -12,6 +15,7 @@ def create_knowledge_bases(base, description):
         )
         conn.execute(stmt)
         conn.commit()
+        return "Knowledge base created", 201
 
 
 def read_knowledge_bases():
@@ -23,15 +27,27 @@ def read_knowledge_bases():
 
 def update_bases(base_id, base_name, description):
     with engine.connect() as conn:
+        base_check = conn.execute(select(KnowledgeBase).where(KnowledgeBase.id == base_id)).first()
+        if not base_check:
+            return "Knowledge base not found", 404
+        # name_check = conn.execute(select(KnowledgeBase).where(KnowledgeBase.name == base_name)).first()
+        # if name_check:
+        #     return "Knowledge base not found", 404
+        # TODO сделать нейм чек
         stmt = update(KnowledgeBase).where(KnowledgeBase.id == base_id).values(name=base_name, description=description)
-        res = conn.execute(stmt)
+        conn.execute(stmt)
         conn.commit()
-        return res.rowcount
+        return "Knowledge base updated", 200
 
 
 def delete_bases(base_id):
     with engine.connect() as conn:
+        base_check = conn.execute(select(KnowledgeBase).where(KnowledgeBase.id == base_id)).first()
+        if not base_check:
+            return "Knowledge base not found", 404
+        conn.execute(delete(Section).where(Section.kb_id == base_id))
+        conn.execute(delete(UserKBAccess).where(UserKBAccess.kb_id == base_id))
         stmt = delete(KnowledgeBase).where(KnowledgeBase.id == base_id)
-        res = conn.execute(stmt)
+        conn.execute(stmt)
         conn.commit()
-        return res.rowcount
+        return "Knowledge base deleted", 200

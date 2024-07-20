@@ -1,10 +1,13 @@
 from base.database import engine
 from sqlalchemy import insert, select, update, delete
-from base.models import User
+from base.models import User, UserKBAccess
 
 
 def create_users(user):
     with engine.connect() as conn:
+        name_check = conn.execute(select(User).where(User.username == user)).first()
+        if name_check:
+            return "User already exists", 409
         stmt = insert(User).values(
             [
                 {'username': user}
@@ -12,6 +15,7 @@ def create_users(user):
         )
         conn.execute(stmt)
         conn.commit()
+        return "User created", 201
 
 
 def read_users():
@@ -23,15 +27,23 @@ def read_users():
 
 def update_users(user_id, new_username):
     with engine.connect() as conn:
+        user_check = conn.execute(select(User).where(User.id == user_id)).first()
+        if not user_check:
+            return "User not found", 404
+        # TODO сделать нейм чек
         stmt = update(User).where(User.id == user_id).values(username=new_username)
-        res = conn.execute(stmt)
+        conn.execute(stmt)
         conn.commit()
-        return res.rowcount
+        return "User updated", 200
 
 
 def delete_users(user_id):
     with engine.connect() as conn:
+        user_check = conn.execute(select(User).where(User.id == user_id)).first()
+        if not user_check:
+            return "User not found", 404
+        conn.execute(delete(UserKBAccess).where(UserKBAccess.user_id == user_id))
         stmt = delete(User).where(User.id == user_id)
-        res = conn.execute(stmt)
+        conn.execute(stmt)
         conn.commit()
-        return res.rowcount
+        return "User deleted", 200

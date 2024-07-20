@@ -54,7 +54,11 @@ def update_node_attributes(node_id, attr_id, condition):
 
 def delete_node_attributes(node_id, attr_id):
     with engine.connect() as conn:
-        stmt = delete(NodeAttribute).where((NodeAttribute.node_id == node_id) & (NodeAttribute.attribute_id == attr_id))
-        res = conn.execute(stmt)
+        stmt = delete(NodeAttribute).where(
+            (NodeAttribute.node_id == node_id) & (NodeAttribute.attribute_id == attr_id)).returning(
+            NodeAttribute.node_id)
+        res = conn.execute(stmt).scalar()
+        if not res:
+            return "Node attribute not found", 404
         conn.commit()
-        return res.rowcount
+        return 'Node attribute deleted', 200
