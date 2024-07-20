@@ -1,6 +1,5 @@
 from base.test_database import engine_test
 from sqlalchemy import insert, select, update, delete, text
-from base.models import User
 
 query_test = """
 CREATE TABLE IF NOT EXISTS users (
@@ -33,6 +32,6 @@ def test_read():
         print(f'{res.all()=}')
 
 
-test_create()
-insert_test("artem")
+# test_create()
+# insert_test("artem")
 test_read()

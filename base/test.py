@@ -10,10 +10,11 @@ class SettingsTest(BaseSettings):
     ADDON_USER: str
     ADDON_PASSWORD: str
     ADDON_DB: str
+    ADDON_URI: str
 
     @property
     def DATABASE_URL(self):
-        return f'postgresql+psycopg://{self.ADDON_USER}:{self.ADDON_PASSWORD}@{self.ADDON_HOST}:{self.ADDON_PORT}/{self.ADDON_DB}'
+        return f'postgresql+psycopg{self.ADDON_URI}'
 
     class ConfigTest:
         env_file = '.env'
@@ -21,4 +22,4 @@ class SettingsTest(BaseSettings):
 
 settings = SettingsTest()
 
-print(settings.model_dump())
+# print(settings.model_dump())
