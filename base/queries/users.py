@@ -30,7 +30,9 @@ def update_users(user_id, new_username):
         user_check = conn.execute(select(User).where(User.id == user_id)).first()
         if not user_check:
             return "User not found", 404
-        # TODO сделать нейм чек
+        existing_user = conn.execute(select(User).where(User.username == new_username)).first()
+        if existing_user and existing_user.id != user_id:
+            return "Username already taken", 400
         stmt = update(User).where(User.id == user_id).values(username=new_username)
         conn.execute(stmt)
         conn.commit()

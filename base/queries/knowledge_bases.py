@@ -30,10 +30,9 @@ def update_bases(base_id, base_name, description):
         base_check = conn.execute(select(KnowledgeBase).where(KnowledgeBase.id == base_id)).first()
         if not base_check:
             return "Knowledge base not found", 404
-        # name_check = conn.execute(select(KnowledgeBase).where(KnowledgeBase.name == base_name)).first()
-        # if name_check:
-        #     return "Knowledge base not found", 404
-        # TODO сделать нейм чек
+        existing_base = conn.execute(select(KnowledgeBase).where(KnowledgeBase.name == base_name)).first()
+        if existing_base and existing_base.id != base_id:
+            return "Knowledge base name already taken", 400
         stmt = update(KnowledgeBase).where(KnowledgeBase.id == base_id).values(name=base_name, description=description)
         conn.execute(stmt)
         conn.commit()
