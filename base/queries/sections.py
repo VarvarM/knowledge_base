@@ -36,7 +36,10 @@ def update_sections(sec_id, kb_id, name):
         section_check = conn.execute(select(Section).where(Section.id == sec_id)).first()
         if not section_check:
             return "Section not found", 404
-        # TODO сделать нейм + base_id чек
+        existing_section = conn.execute(
+            select(Section).where((Section.name == name) & (Section.kb_id == kb_id))).first()
+        if existing_section and existing_section.id != sec_id:
+            return "Section name already taken", 400
         stmt = update(Section).where(Section.id == sec_id).values(kb_id=kb_id, name=name)
         conn.execute(stmt)
         conn.commit()
